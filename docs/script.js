@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const startButton = document.getElementById('start-button');
     const autoNextCheckbox = document.getElementById('auto-next-checkbox');
-    const questionText = document.getElementById('question-text');
+    const questionText = document = document.getElementById('question-text');
     const incorrectArea = document.getElementById('incorrect-area');
     const correctArea = document.getElementById('correct-area');
     const answerResult = document.getElementById('answer-result');
@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         shuffleArray(allQuestions);
-        currentQuestions = [...allQuestions]; // 全問題のコピーを初期セットとして使用
+        currentQuestions = [...allQuestions];
     }
 
     // 配列をシャッフルするフィッシャー・イェーツ法
@@ -78,7 +78,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const question = currentQuestions[questionIndex];
         questionText.textContent = `${question.a} - ${question.b}`;
         
-        // 問題表示と同時にタイマー開始
         questionStartTime = performance.now();
 
         showScreen(questionScreen);
@@ -92,7 +91,6 @@ document.addEventListener('DOMContentLoaded', () => {
         question.isCorrect = isCorrect;
         question.timeTaken = timeTaken;
         
-        // 正解・不正解を記録
         if (isCorrect) {
             correctCount++;
         } else {
@@ -109,17 +107,14 @@ document.addEventListener('DOMContentLoaded', () => {
             answerResult.classList.remove('correct-text');
             answerResult.classList.add('incorrect-text');
         }
-        //correctAnswerText.textContent = `${question.a} - ${question.b} = ${question.correct}`;
         correctAnswerText.textContent = `${question.correct}`;
 
-        // 次の問題へ
         questionIndex++;
         showScreen(answerScreen);
 
-        // 自動で次の問題へ進む
         if (autoNext) {
             nextButton.classList.add('hidden');
-            setTimeout(showQuestion, 800); // 0.8秒後に次の問題へ
+            setTimeout(showQuestion, 700);
         } else {
             nextButton.classList.remove('hidden');
         }
@@ -134,9 +129,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         totalTimeSpan.textContent = totalTime.toFixed(2);
         correctCountSpan.textContent = correctCount;
-        totalQuestionsSpan.textContent = allQuestions.length;
+        
+        if (isReviewMode || isHardMode) {
+            totalQuestionsSpan.textContent = currentQuestions.length;
+        } else {
+            totalQuestionsSpan.textContent = allQuestions.length;
+        }
 
-        // 復習・苦手克服モードボタンの表示制御
         reviewButton.classList.add('hidden');
         hardModeButton.classList.add('hidden');
 
@@ -144,11 +143,10 @@ document.addEventListener('DOMContentLoaded', () => {
             reviewButton.classList.remove('hidden');
         }
         
-        // 時間のかかった問題を特定
         const longTimeQuestions = allQuestions
             .filter(q => q.timeTaken > 0)
             .sort((a, b) => b.timeTaken - a.timeTaken)
-            .slice(0, 5); // 回答時間が長かった上位5問
+            .slice(0, 5);
         
         if (longTimeQuestions.length > 0) {
             hardModeButton.classList.remove('hidden');
@@ -164,6 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (mode === 'review') {
             currentQuestions = [...incorrectQuestions];
+            incorrectQuestions = []; // 復習モード開始時に不正解リストをリセット
             shuffleArray(currentQuestions);
             isReviewMode = true;
             isHardMode = false;
@@ -177,7 +176,6 @@ document.addEventListener('DOMContentLoaded', () => {
             isReviewMode = false;
             isHardMode = true;
         } else {
-            // 通常モード
             generateQuestions();
             totalTime = 0;
             isReviewMode = false;
