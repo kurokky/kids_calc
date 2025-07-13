@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>引き算マスター</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js').then(
+                    registration => console.log('Service Worker registered: ', registration),
+                    error => console.log('Service Worker registration failed: ', error)
+                );
+            });
+        }
+    </script>
+</head>
+<body>
+
+    <div id="start-screen" class="screen active">
+        <h1>引き算マスター</h1>
+        <div class="setting-item">
+            <label for="auto-next-checkbox">自動で次の問題へ進む</label>
+            <input type="checkbox" id="auto-next-checkbox" checked>
+        </div>
+        <button id="start-button">はじめる</button>
+    </div>
+
+    <div id="question-screen" class="screen">
+        <div class="touch-area-container">
+            <div id="incorrect-area" class="touch-area"></div>
+            <div id="correct-area" class="touch-area"></div>
+            <div id="question-text" class="bevel"></div>
+        </div>
+    </div>
+
+    <div id="answer-screen" class="screen">
+        <h2 id="answer-result"></h2>
+        <p id="correct-answer-text"></p>
+        <button id="next-button">次の問題へ</button>
+    </div>
+
+    <div id="result-screen" class="screen">
+        <h1>成績発表</h1>
+        <p>解答にかかった総時間: <span id="total-time"></span>秒</p>
+        <p>正解数: <span id="correct-count"></span> / <span id="total-questions"></span></p>
+        <div class="button-group">
+            <button id="end-button">終わる</button>
+            <button id="review-button" class="hidden">復習モード</button>
+            <button id="hard-mode-button" class="hidden">苦手克服モード</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
