@@ -1,3 +1,10 @@
+const colors = {
+    "+1":"red",
+    "+2":"yellow",
+    "-1":"blue",
+    "-2":"green",
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // DOM要素の取得
     const startScreen = document.getElementById('start-screen');
@@ -5,7 +12,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const answerScreen = document.getElementById('answer-screen');
     const resultScreen = document.getElementById('result-screen');
 
-    const startButton = document.getElementById('start-button');
+    const menu = document.getElementById('menu');
+
+    //const startButton = document.getElementById('start-button');
     const autoNextCheckbox = document.getElementById('auto-next-checkbox');
     const questionText = document = document.getElementById('question-text');
     const incorrectArea = document.getElementById('incorrect-area');
@@ -21,7 +30,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const reviewButton = document.getElementById('review-button');
     const hardModeButton = document.getElementById('hard-mode-button');
 
+    const startButtons = document.querySelectorAll('.start-button');
+
     // グローバル変数
+    let calcType = 0;
+    let calcBaseType = 0;
+    let calcMin = 0;
+    let calcMax = 0;
     let allQuestions = [];
     let currentQuestions = [];
     let questionIndex = 0;
@@ -35,6 +50,59 @@ document.addEventListener('DOMContentLoaded', () => {
     let questionTimes = [];
     let autoNext = true;
 
+
+    startButtons.forEach(button => {
+        button.addEventListener('click', (event) => {
+            // クリックされたボタンのdata-type属性の値を取得
+            calcBaseType = event.currentTarget.dataset.type;
+            document.documentElement.style.setProperty('--calc-color', colors[calcBaseType]);
+            calcType = calcBaseType.split("")[0];
+            calcMin =  parseInt(event.currentTarget.dataset.calcMin);
+            calcMax =  parseInt(event.currentTarget.dataset.calcMax);
+            autoNext = autoNextCheckbox.checked;
+            resetGame('normal');
+        });
+    });
+
+
+
+    function getMinuteRubyReading(minutes) {
+        // 数字の末尾を判断基準にするため、絶対値を取り、文字列に変換
+        const lastDigit = Math.abs(minutes) % 10;
+        const lastTwoDigits = Math.abs(minutes) % 100; // 10分の場合に対応
+
+        // 特殊な読み方をする数字
+        switch (lastDigit) {
+            case 1: // 1分 (いっぷん)
+            case 3: // 3分 (さんぷん)
+            case 4: // 4分 (よんぷん)
+            case 6: // 6分 (ろっぷん)
+            case 8: // 8分 (はっぷん)
+            case 0: // 10分、20分などの「0」で終わる場合（「じゅっぷん」「～っぷん」）
+                // ただし、70分は「ななじゅっぷん」または「ななじゅうふん」で「ふん」も使われるため、ここでは「ぷん」を優先。
+                // 0分は「れいふん」なので特別扱い
+                if (minutes === 0) {
+                    return 'ふん'; // 0分は「れいふん」
+                }
+                // 10分も「じゅっぷん」
+                if (lastTwoDigits === 10) {
+                    return 'ぷん';
+                }
+                return 'ぷん'; // 基本的に「ぷん」
+            case 2: // 2分 (にふん)
+            case 5: // 5分 (ごふん)
+            case 7: // 7分 (ななふん)
+            case 9: // 9分 (きゅうふん)
+                return 'ふん';
+            default:
+                return 'ふん'; // その他の予期せぬ場合
+        }
+    }
+
+
+
+
+
     // 画面切り替え関数
     function showScreen(screen) {
         const screens = [startScreen, questionScreen, answerScreen, resultScreen];
@@ -42,20 +110,90 @@ document.addEventListener('DOMContentLoaded', () => {
         screen.classList.add('active');
     }
 
+
+    function generateSubtractionProblemsWithBorrow() {
+      for (let minuend = 11; minuend <= 18; minuend++) {
+        for (let subtrahend = 1; subtrahend <= 9; subtrahend++) {
+          if ((minuend % 10) < subtrahend) {
+            allQuestions.push({
+                a: minuend,
+                b: subtrahend,
+                correct:  minuend - subtrahend,
+                isCorrect: false,
+                timeTaken: 0,
+            });
+          }
+        }
+      }
+      console.log(allQuestions)
+      shuffleArray(allQuestions);
+      currentQuestions = [...allQuestions];
+    }
+
+
+    function generateAdditionProblemsWithCarry() {
+      const problems = [];
+      for (let num1 = 2; num1 <= 9; num1++) {
+        for (let num2 = 2; num2 <= 9; num2++) {
+          if (num1 + num2 >= 10) {
+            allQuestions.push({
+                a: num1,
+                b: num2,
+                correct:  num1 + num2,
+                isCorrect: false,
+                timeTaken: 0,
+            });
+          }
+        }
+      }
+      console.log(allQuestions)
+      shuffleArray(allQuestions);
+      currentQuestions = [...allQuestions];
+    }
+
     // 問題の生成とシャッフル
     function generateQuestions() {
         allQuestions = [];
-        for (let a = 1; a <= 10; a++) {
-            for (let b = 1; b <= a; b++) {
-                allQuestions.push({
-                    a: a,
-                    b: b,
-                    correct: a - b,
-                    isCorrect: false,
-                    timeTaken: 0,
-                });
+        //繰り下がり2桁引き算
+        if (calcBaseType == "-2"){
+            generateSubtractionProblemsWithBorrow();
+            return
+        }
+        if (calcBaseType == "+2"){
+            generateAdditionProblemsWithCarry();
+            return
+        }
+        for (let a = calcMin; a <= calcMax; a++) {
+            let bMax = calcMax; // デフォルトでは b は calcMax まで
+            if (calcType === "-") {
+                bMax = a; 
+            }
+            for (let b = calcMin; b <= bMax; b++) {
+                let answer;
+                let skipQuestion = false;
+                if (calcType === "+") {
+                    answer = a + b;
+                    if (answer > calcMax) {
+                        skipQuestion = true;
+                    }
+                } else {
+                    answer = a - b;
+                    if (answer < calcMin) {
+                        skipQuestion = true;
+                    }
+                }
+                if (!skipQuestion) {
+                    allQuestions.push({
+                        a: a,
+                        b: b,
+                        correct: answer,
+                        isCorrect: false,
+                        timeTaken: 0,
+                    });
+                }
             }
         }
+        //console.log(allQuestions)
         shuffleArray(allQuestions);
         currentQuestions = [...allQuestions];
     }
@@ -76,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         const question = currentQuestions[questionIndex];
-        questionText.textContent = `${question.a} - ${question.b}`;
+        questionText.textContent = `${question.a} ${calcType} ${question.b}`;
         
         questionStartTime = performance.now();
 
@@ -127,7 +265,17 @@ document.addEventListener('DOMContentLoaded', () => {
             totalTime = (endTime - startTime) / 1000;
         }
 
-        totalTimeSpan.textContent = totalTime.toFixed(2);
+        if (totalTime < 60) {
+            totalTimeSpan.innerHTML = `${totalTime.toFixed(2)}<ruby><rb>秒</rb><rt>びょう</rt></ruby>`;
+        }else{
+            const minutes = Math.floor(totalTime / 60);
+            const seconds = totalTime % 60;
+            const formattedSeconds = seconds.toFixed(2);
+            const ruby = getMinuteRubyReading(minutes);
+            totalTimeSpan.innerHTML = `${minutes}<ruby><rb>分</rb><rt>${ruby}</rt></ruby>${formattedSeconds}<ruby><rb>秒</rb><rt>びょう</rt></ruby>`;
+        }
+
+        
         correctCountSpan.textContent = correctCount;
         
         if (isReviewMode || isHardMode) {
@@ -157,6 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ゲームのリセットと開始
     function resetGame(mode) {
+        console.log("start")
         questionIndex = 0;
         correctCount = 0;
         
@@ -188,10 +337,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // イベントリスナー
+    /*
     startButton.addEventListener('click', () => {
         autoNext = autoNextCheckbox.checked;
         resetGame('normal');
     });
+    */
 
     nextButton.addEventListener('click', () => {
         showQuestion();

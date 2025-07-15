@@ -20,12 +20,17 @@
 <body>
 
     <div id="start-screen" class="screen active">
-        <h1><ruby><rb>引</rb><rt>ひ</rt></ruby>き<ruby><rb>算</rb><rt>ざん</rt></ruby>マスター</h1>
+        <h1><ruby><rb>計</rb><rt>けい</rt></ruby><ruby><rb>算</rb><rt>さん</rt></ruby>マスター</h1>
         <div class="setting-item">
             <label for="auto-next-checkbox"><ruby><rb>自</rb><rt>じ</rt><rb>動</rb><rt>どう</rt></ruby>で<ruby><rb>次</rb><rt>つぎ</rt></ruby>の<ruby><rb>問題</rb><rt>もんだい</rt></ruby>へ<ruby><rb>進</rb><rt>すす</rt></ruby>む</label>
             <input type="checkbox" id="auto-next-checkbox" checked>
         </div>
-        <button id="start-button">はじめる</button>
+        <div id="menu">
+        <button class="start-button" data-type="-1" data-calc-min="1" data-calc-max="10" style="background:red"><ruby><rb>引</rb><rt>ひ</rt></ruby>き<ruby><rb>算</rb><rt>ざん</rt></ruby>1</button>
+        <button class="start-button" data-type="+1" data-calc-min="1" data-calc-max="10" style="background:blue"><ruby><rb>足</rb><rt>た</rt></ruby>し<ruby><rb>算</rb><rt>ざん</rt></ruby>1</button>
+        <button class="start-button" data-type="-2" data-calc-min="1" data-calc-max="10" style="background:green"><ruby><rb>引</rb><rt>ひ</rt></ruby>き<ruby><rb>算</rb><rt>ざん</rt></ruby>2</button>
+        <button class="start-button" data-type="+2" data-calc-min="1" data-calc-max="10" style="background:yellow;color:#000"><ruby><rb>足</rb><rt>た</rt></ruby>し<ruby><rb>算</rb><rt>ざん</rt></ruby>2</button>
+        </div>
     </div>
 
     <div id="question-screen" class="screen">
@@ -44,7 +49,7 @@
 
     <div id="result-screen" class="screen">
         <h1><ruby>成<rt>せい</rt></ruby><ruby>績<rt>せき</rt></ruby><ruby>発<rt>はっ</rt></ruby><ruby>表<rt>ぴょう</rt></ruby></h1>
-        <p><ruby>解<rt>かい</rt></ruby><ruby>答<rt>とう</rt></ruby>にかかった<ruby>総<rt>そう</rt></ruby><ruby>時<rt>じ</rt></ruby><ruby>間<rt>かん</rt></ruby>: <span id="total-time"></span><ruby><rb>秒</rb><rt>びょう</rt></ruby></p>
+        <p><ruby>解<rt>かい</rt></ruby><ruby>答<rt>とう</rt></ruby>にかかった<ruby>総<rt>そう</rt></ruby><ruby>時<rt>じ</rt></ruby><ruby>間<rt>かん</rt></ruby>: <span id="total-time"></span></p>
         <p><ruby>正<rt>せい</rt></ruby><ruby>解<rt>かい</rt></ruby><ruby>数<rt>すう</rt></ruby>: <span id="correct-count"></span> / <span id="total-questions"></span></p>
         <div class="button-group">
             <button id="end-button"><ruby>終<rt>お</rt></ruby>わる</button>

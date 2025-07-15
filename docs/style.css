@@ -13,6 +13,14 @@ body {
     touch-action: manipulation;
 }
 
+:root{
+    --calc-color:blue;
+}
+
+#menu{
+    display:flex;
+}
+
 .screen {
     display: none;
     flex-direction: column;
@@ -62,11 +70,11 @@ button:hover {
     background-color: #45a049;
 }
 
-#start-button {
+.start-button {
     background-color: #2196f3;
 }
 
-#start-button:hover {
+.start-button:hover {
     background-color: #1976d2;
 }
 
@@ -180,7 +188,7 @@ button:hover {
 
 
 #correct-answer-text{
-    background:blue;
+    background:var(--calc-color);
     color:#fff;
     font-weight: bold;
     border-radius:50%;
@@ -200,7 +208,7 @@ button:hover {
     height: 50px;
     margin-top:-25px;
     border-radius:100% 0 0 100% / 50%;
-    background: blue;
+    background:var(--calc-color);
     z-index: 10;
 }
 
